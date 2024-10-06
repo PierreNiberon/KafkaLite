@@ -1,0 +1,3 @@
+KafkaLite is a project to simplify kafka and message streaming.
+
+The idea is similar to what SQLite is to RDBMS in general.
