@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 
 # Base directory to store topic files
 current_dir = os.path.dirname(os.path.abspath(__file__))  # src/
@@ -24,6 +25,17 @@ def create_topic(topic_name):
         print(f"Topic '{topic_name}' created.")
     else:
         print(f"Topic '{topic_name}' already exists.")
+
+def delete_topic(topic_name):
+    """Deletes the topic directory, including the log and metadata files."""
+    topic_dir = os.path.join(topics_dir, topic_name)
+
+    if os.path.exists(topic_dir):
+        # Use shutil to remove the entire directory and its contents
+        shutil.rmtree(topic_dir)
+        print(f"Topic '{topic_name}' deleted.")
+    else:
+        print(f"Topic '{topic_name}' does not exist.")
 
 def get_last_message_id(topic_name):
     """Reads the last message ID from the metadata file."""
@@ -87,7 +99,7 @@ if __name__ == "__main__":
 
     # Set up command-line arguments for creating topics and producing messages
     parser = argparse.ArgumentParser(description="KafkaLite: A lightweight message streaming service")
-    parser.add_argument('action', choices=['create_topic', 'produce', 'consume'], help="Action to perform")
+    parser.add_argument('action', choices=['create_topic', 'delete_topic', 'produce', 'consume'], help="Action to perform")
     parser.add_argument('topic', help="Name of the topic")
     parser.add_argument('-m', '--message', help="Message to produce (required for 'produce')", default=None)
 
@@ -95,6 +107,10 @@ if __name__ == "__main__":
 
     if args.action == 'create_topic':
         create_topic(args.topic)
+    elif args.action == 'delete_topic':
+        print(f"Are you sure you want to delete {args.topic} ?")
+        answer = input("y/n ?")
+        if answer.strip().lower() == 'y' : delete_topic(args.topic) 
     elif args.action == 'produce' and not args.message:
         parser.error("The --message argument is required when action is 'produce'.")
     elif args.action == 'produce':
