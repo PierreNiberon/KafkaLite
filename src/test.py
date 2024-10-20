@@ -23,6 +23,7 @@ class TestKafkaLite(unittest.TestCase):
         """Test topic creation."""
         self.kafka_lite.create_topic(self.test_topic)
         self.assertTrue(os.path.exists(f"topics/{self.test_topic}/{self.test_topic}.log"))
+        self.assertTrue(os.path.exists(f"topics/{self.test_topic}/{self.test_topic}.bin"))
         self.assertTrue(os.path.exists(f"topics/{self.test_topic}/{self.test_topic}.meta"))
 
     def test_produce_message(self):
