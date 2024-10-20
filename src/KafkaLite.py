@@ -44,6 +44,22 @@ class KafkaLite:
             log_file.write(f"{last_message_id}: {message}\n")
         print(f"Message '{message}' written to topic '{topic_name}'.")
 
+    def consume(self, topic_name, from_id=0):
+        """Reads messages from the topic log file starting from a specific ID."""
+        topic_dir = os.path.join(self.topics_dir, topic_name)
+        topic_path = os.path.join(topic_dir, f"{topic_name}.log")
+
+        if not os.path.exists(topic_path):
+            print(f"Topic '{topic_name}' does not exist.")
+            return
+        
+        # Read and print messages from the log file
+        with open(topic_path, 'r') as log_file:
+            for line in log_file:
+                message_id, message = line.strip().split(': ', 1)
+                if int(message_id) >= from_id:
+                    print(f"{message_id}: {message}")
+
     def delete_topic(self, topic_name):
         """Deletes the topic's directory and its files."""
         topic_dir = os.path.join(self.topics_dir, topic_name)
@@ -56,3 +72,14 @@ class KafkaLite:
             print(f"Topic '{topic_name}' deleted.")
         else:
             print(f"Topic '{topic_name}' does not exist.")
+
+    def get_last_message_id(self, topic_name):
+        """Retrieves the last message ID from the topic's metadata file."""
+        metadata_path = os.path.join(self.topics_dir, topic_name, f"{topic_name}.meta")
+        if not os.path.exists(metadata_path):
+            raise FileNotFoundError(f"Metadata file for topic '{topic_name}' not found.")
+        
+        with open(metadata_path, 'r') as meta_file:
+            metadata = dict(line.strip().split('=') for line in meta_file.readlines())
+            last_message_id = int(metadata.get('last_message_id', 0))
+        return last_message_id
