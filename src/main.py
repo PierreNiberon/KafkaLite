@@ -21,7 +21,7 @@ def main():
             parser.error("The --message argument is required for 'produce'.")
         kafkalite.produce(args.topic, args.message)
     elif args.action == 'consume':
-        kafkalite.consume(args.topic, from_id=args.from_id)
+        kafkalite.consume(args.topic)
     elif args.action == 'delete_topic':
         kafkalite.delete_topic(args.topic)
 
