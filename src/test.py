@@ -12,12 +12,7 @@ class TestKafkaLite(unittest.TestCase):
     def tearDown(self):
         """Cleanup after tests (runs after each test)."""
         # Remove the topic and metadata files after tests
-        topic_dir = os.path.join("topics", self.test_topic)
-        if os.path.exists(topic_dir):
-            for filename in os.listdir(topic_dir):
-                file_path = os.path.join(topic_dir, filename)
-                os.remove(file_path)
-            os.rmdir(topic_dir)
+        self.kafka_lite.delete_topic(self.test_topic)
 
     def test_create_topic(self):
         """Test topic creation."""

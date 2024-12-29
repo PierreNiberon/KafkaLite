@@ -1,3 +1,14 @@
 KafkaLite is a project to simplify kafka and message streaming.
 
 The idea is similar to what SQLite is to RDBMS in general.
+
+To Do :
+    - Refactor tests
+    - Add threading
+    - refactor ugly consume_from_id
+    - remove the prints from kafkalite class to put them in their own class
+    - create a declarative language to query the topics
+    - add a volatile topic option
+    - create an index alongside the logs
+
+python -m unittest test_kafkalite.py

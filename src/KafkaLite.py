@@ -65,7 +65,7 @@ class KafkaLite:
 
 
     def consume(self, topic_name):
-        """Reads messages from the topic log file starting from a specific ID."""
+        """Reads messages from the topic log file starting from the first message."""
         topic_dir = os.path.join(self.topics_dir, topic_name)
         topic_path = os.path.join(topic_dir, f"{topic_name}.log ")
 
@@ -95,6 +95,57 @@ class KafkaLite:
                 message = bin_file.read(message_length).decode('utf-8')
 
                 print(f"ID: {message_id}, Message: {message}")
+
+    def consume_from_id(self, topic_name, target_id):
+        """Consume messages starting from a specific message ID in the binary log."""
+        topic_dir = os.path.join(self.topics_dir, topic_name)
+        topic_path_log = os.path.join(topic_dir, f"{topic_name}.log")
+
+        if not os.path.exists(topic_path_log):
+            print(f"Topic '{topic_name}' does not exist.")
+            return
+
+        with open(topic_path_log, 'rb') as bin_file:
+            while True:
+                # Read the message header (ID and length)
+                header = bin_file.read(8)  # 4 bytes for ID + 4 bytes for length
+                if len(header) < 8:
+                    break  # End of file reached
+
+                message_id, message_length = struct.unpack('II', header)
+
+                # Check if this is the message we're looking for and displays it
+                if message_id == target_id:
+                    message = bin_file.read(message_length)
+                    print(f"ID: {message_id}, Message: {message.decode('utf-8')}")
+                    
+                    # Then we start to unpack the messages afterwards
+                    while True :
+
+                    # Check if there is data where the cursors currently stands
+                        message_id = bin_file.read(4)
+                        if not message_id:
+                            break
+                        
+                        # Read the message ID
+                        message_id = struct.unpack('I', message_id)[0]
+                        
+
+                        # Read and unpack the message length
+                        message_length = struct.unpack('I', bin_file.read(4))[0]
+                        
+                        # Read the actual message
+                        message = bin_file.read(message_length).decode('utf-8')
+
+                        print(f"ID: {message_id}, Message: {message}")
+
+                    return
+
+                # Skip the content if the message ID is smaller
+                bin_file.seek(message_length, 1)
+
+        print(f"Message with ID {target_id} not found.")
+
 
     def delete_topic(self, topic_name):
         """Deletes the topic's directory and its files."""
